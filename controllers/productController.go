@@ -1,16 +1,21 @@
 package controllers
 
 import (
-	"fmt"
-	"rentoutlkApi/sevices"
-	"rentoutlkApi/databse"
-	"rentoutlkApi/models"
-	"rentoutlkApi/utils"
-	"strconv"
-	"time"
-	"strings"
-	"github.com/gofiber/fiber/v2"
+  "fmt"
+  "rentoutlkApi/databse"
+  "rentoutlkApi/models"
+  "rentoutlkApi/sevices"
+  "rentoutlkApi/utils"
+  "strconv"
+  "strings"
+  "time"
+  "github.com/gofiber/fiber/v2"
 )
+
+
+type Image struct {
+  url string
+}
 
 /*
 
@@ -18,9 +23,8 @@ Add AddProduct
 
 */
 
-
 func AddProduct(c *fiber.Ctx) error {
-	var data map[string]string
+  var data map[string]string
   cookie := c.Cookies("jwt")
   claims, err := utils.ValidateCookie(cookie) 
 
@@ -31,9 +35,13 @@ func AddProduct(c *fiber.Ctx) error {
     })
   }
 
-	if err := c.BodyParser(&data); err != nil {
-		return err
-	}
+  if err := c.BodyParser(&data); err != nil {
+    c.Status(fiber.StatusBadRequest)
+    return c.JSON(fiber.Map{
+      "message" : "couldn't parse the data in the request body ",
+      "data"    : nil,
+    })
+  }
 
   createdBy, _ := strconv.Atoi(claims.Issuer)
   productCategory, _ := strconv.Atoi(data["productCategory"])
@@ -48,10 +56,21 @@ func AddProduct(c *fiber.Ctx) error {
 
   databse.DB.Create(&product)
 
-	//Creating product details
-  newProductDetails:= models.GetProductDetails(int(product.Id), data) 
-	databse.DB.Create(&newProductDetails)
-		return c.JSON(fiber.Map{
+  //Creating product details
+  var newProductDetails models.PropertyDetail
+  newProductDetails.GetProductDetails(int(product.Id), data)
+
+
+  //adding productImatges
+  images := strings.Split(data["images"], "+") 
+  var imageArray []models.ImageDetail 
+  for _, url := range images {
+    imageArray = append(imageArray, models.ImageDetail{Url: url, ProductId: int(product.Id)})
+  } 
+  databse.DB.Create(&imageArray)	
+
+  databse.DB.Create(&newProductDetails)
+  return c.JSON(fiber.Map{
     "message" : "Successfully created",
     "data"    : product,
   })
@@ -63,36 +82,35 @@ List a Products
 
 */
 func ListAProducts(c *fiber.Ctx) error {
-
   type Res struct {
-		Id                  string`json:"id"`
-		Title               string`json:"title"`
-		Description         string`json:"description"`
-		CreatedBy           int`json:"createdBy"`
-		Status              int`json:"status"`
-		CreatedAt           int64`json:"createdAt"`
-		PropertyType        int`json:"propertyType"`
-		NumOfBedrooms       int`json:"numOfBedrooms"`
-		NumOfBathrooms      int`json:"numOfBathrooms"`
-		FloorArea           int`json:"floorArea"`
-		FurnishedStatus     bool`json:"furnishedStatus"`
-		AdvancePayment      int`json:"advancePayment"`
-		SecurityDeposit     int`json:"securityDeposit"`
-		RentAmount          int`json:"rentAmount"`
-		Pool                bool`json:"pool"`
-		Gym                 bool`json:"gym"`
-		PropertyCode        int`json:"propertyCode"`
-		Generators          bool`json:"generators"`
-		SeperateElectricity bool`json:"seperateElectricity"`
-	}
+    Id                  string`json:"id"`
+    Title               string`json:"title"`
+    Description         string`json:"description"`
+    CreatedBy           int`json:"createdBy"`
+    Status              int`json:"status"`
+    CreatedAt           int64`json:"createdAt"`
+    PropertyType        int`json:"propertyType"`
+    NumOfBedrooms       int`json:"numOfBedrooms"`
+    NumOfBathrooms      int`json:"numOfBathrooms"`
+    FloorArea           int`json:"floorArea"`
+    FurnishedStatus     bool`json:"furnishedStatus"`
+    AdvancePayment      int`json:"advancePayment"`
+    SecurityDeposit     int`json:"securityDeposit"`
+    RentAmount          int`json:"rentAmount"`
+    Pool                bool`json:"pool"`
+    Gym                 bool`json:"gym"`
+    PropertyCode        int`json:"propertyCode"`
+    Generators          bool`json:"generators"`
+    SeperateElectricity bool`json:"seperateElectricity"`
+  }
 
 	
   productId := c.Params("id")
-	var res Res
-  result :=	databse.DB.Raw("select * from products inner join property_details on property_details.id = products.id where products.id=?", productId).Scan(&res)
+  var res Res
+  result := databse.DB.Raw("select * from products inner join property_details on property_details.id = products.id where products.id=?", productId).Scan(&res)
 	
   if(result.Error != nil) {
-		c.Status(fiber.StatusInternalServerError)
+    c.Status(fiber.StatusInternalServerError)
     return c.JSON(fiber.Map{
       "message": "Couln'd fetch data",
       "data"   : nil,
@@ -101,7 +119,7 @@ func ListAProducts(c *fiber.Ctx) error {
 
   return c.JSON(fiber.Map{
     "message": "List of products",
-		"data"   : res,
+    "data"   : res,
   })
 }
 /*
@@ -110,12 +128,12 @@ update Product
 
 */
 func UpdateProduct(c *fiber.Ctx) error {
-	var data map[string]string
+  var data map[string]string
   cookie := c.Cookies("jwt")
   _, err := utils.ValidateCookie(cookie) 
 
   if err != nil {
-		c.Status(fiber.StatusUnauthorized)
+    c.Status(fiber.StatusUnauthorized)
 
     return c.JSON(fiber.Map{
       "message" : "Authentication reuired",
@@ -123,48 +141,47 @@ func UpdateProduct(c *fiber.Ctx) error {
     })
   }
 
-	if err := c.BodyParser(&data); err != nil {
-   fmt.Println(err) 
-		c.Status(fiber.StatusBadRequest)
+  if err := c.BodyParser(&data); err != nil {
+    fmt.Println(err) 
+    c.Status(fiber.StatusBadRequest)
     return c.JSON(fiber.Map{
       "message": "Somthing wrong in the payload",
       "data": nil,
     })
-
-	}
+  }
 
   productId := c.Params("id")
 
   var product models.Product;
   databse.DB.Where("id = ?", productId ).First(&product)	
 
-	if(data["title"] != "")  {
-		product.Title = data["title"]
-	}
+  if(data["title"] != "")  {
+    product.Title = data["title"]
+  }
 
-	if(data["description"] != "") {
-		product.Description = data["description"]
-	}
+  if(data["description"] != "") {
+    product.Description = data["description"]
+  }
 	
-	status, _:= strconv.Atoi(data["status"])
-	if(data["status"] != "") {
-		product.Status = status
-	}
+  status, _:= strconv.Atoi(data["status"])
+  if(data["status"] != "") {
+    product.Status = status
+  }
 
   product.UpdatedAt = time.Now().Unix()
 
   created := databse.DB.Save(&product)
   if(created.Error != nil) {
     fmt.Println(created.Error) 
-		c.Status(fiber.StatusInternalServerError)
+    c.Status(fiber.StatusInternalServerError)
     return c.JSON(fiber.Map{
       "message": "Coulndt update the property",
       "data": nil,
     })
   }
   var pId, _ = strconv.Atoi(strings.TrimSpace(productId))
-	var details models.PropertyDetail 
-	databse.DB.Where("product_id = ?", pId).First(&details)	
+  var details models.PropertyDetail 
+  databse.DB.Where("product_id = ?", pId).First(&details)	
 
 
   var propertyType, _        = strconv.Atoi(data["propertyType"]) 
@@ -181,45 +198,45 @@ func UpdateProduct(c *fiber.Ctx) error {
   var generators, _          = strconv.ParseBool(data["generators"])
   var seperateElectricity, _ = strconv.ParseBool(data["seperateElectricity"])
 
-	if(propertyType != 0 ) {
-	  details.PropertyType = propertyType
-	}
-	if(numberOfBedrooms != 0) {
-			details.NumOfBedrooms= numberOfBedrooms
-	}
-	if(numberOfBathrooms != 0 ) {
-	  details.NumOfBathrooms = numberOfBathrooms
-	}
+  if(propertyType != 0 ) {
+    details.PropertyType = propertyType
+  }
+  if(numberOfBedrooms != 0) {
+    details.NumOfBedrooms= numberOfBedrooms
+  }
+  if(numberOfBathrooms != 0 ) {
+    details.NumOfBathrooms = numberOfBathrooms
+  }
   if(floorArea != 0 ) {
-	  details.FloorArea= floorArea
-	}
-	if(furnishedStatus != details.FurnishedStatus) {
-			details.FurnishedStatus= furnishedStatus 
-	}
-	if(advancePayment != 0) {
-	  details.AdvancePayment = advancePayment
-	}
-	if(securityDeposite != 0) {
-	  details.SecurityDeposit = securityDeposite 
-	}
-	if(rentAmount != 0) {
-	  details.RentAmount = rentAmount 
-	}
+    details.FloorArea= floorArea
+  }
+  if(furnishedStatus != details.FurnishedStatus) {
+    details.FurnishedStatus= furnishedStatus 
+  }
+  if(advancePayment != 0) {
+    details.AdvancePayment = advancePayment
+  }
+  if(securityDeposite != 0) {
+    details.SecurityDeposit = securityDeposite 
+  }
+  if(rentAmount != 0) {
+    details.RentAmount = rentAmount 
+  }
   if(propertyCode !=  0) {
-	  details.PropertyCode = propertyCode 
-	}
-	if(pool != details.Pool) {
-			details.Pool = pool 
-	}
-	if(gym) {
-	  details.Gym = gym 
-	}
-	if(generators != details.Generators) {
-			details.Generators = generators 
-	}
-	if(seperateElectricity != details.SeperateElectricity) {
-	  details.SeperateElectricity = seperateElectricity 
-	}
+    details.PropertyCode = propertyCode 
+  }
+  if(pool != details.Pool) {
+    details.Pool = pool 
+  }
+  if(gym) {
+    details.Gym = gym 
+  }
+  if(generators != details.Generators) {
+    details.Generators = generators 
+  }
+  if(seperateElectricity != details.SeperateElectricity) {
+    details.SeperateElectricity = seperateElectricity 
+  }
 
 
 fmt.Println(details.Id)
@@ -236,8 +253,8 @@ fmt.Println(details.Id)
     })
   }
 
-	return c.JSON(fiber.Map{
-			"message": "Successfully updated",
+  return c.JSON(fiber.Map{
+    "message": "Successfully updated",
     "data": product,
   })
 }
@@ -253,24 +270,22 @@ func ListProducts(c *fiber.Ctx) error {
   adding filters
 */
 
-fmt.Println(c.Query("productType"))
-	filter := sevices.Filter{
-		PropertyType:    c.Query("propertyType"),
-		NumOfBedrooms:   c.Query("beds"),
-		NumOfBathrooms:  c.Query("baths"),
-		FurnishedStatus: c.Query("furnished"),
-		MaxRent:         c.Query("maxRent"),
-		MinRent:         c.Query("minRent"),
-		Page:            c.Query("page"),
-	}
+  filter := sevices.Filter{
+    PropertyType:    c.Query("propertyType"),
+    NumOfBedrooms:   c.Query("beds"),
+    NumOfBathrooms:  c.Query("baths"),
+    FurnishedStatus: c.Query("furnished"),
+    MaxRent:         c.Query("maxRent"),
+    MinRent:         c.Query("minRent"),
+    Page:            c.Query("page"),
+  }
   
-	properties, err := sevices.FetchProperties(filter)
+  properties, err := sevices.FetchProperties(filter)
 	
   if(err != nil) {
-		c.Status(fiber.StatusInternalServerError)
-
-		//loggin the error 
-		fmt.Println(err)
+    c.Status(fiber.StatusInternalServerError)
+    //loggin the error 
+    fmt.Println(err)
     return c.JSON(fiber.Map{
       "message": err,
       "data": nil,
@@ -279,6 +294,6 @@ fmt.Println(c.Query("productType"))
 
   return c.JSON(fiber.Map{
     "message": "List of products",
-		"data": properties,
+    "data": properties,
   })
 }

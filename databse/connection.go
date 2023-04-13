@@ -17,6 +17,6 @@ func Connect(){
 
 	DB = connection
 
-	connection.AutoMigrate(&models.User{}, &models.Product{},&models.ProductCategory{}, &models.PropertyDetail{})
+	connection.AutoMigrate(&models.User{}, &models.Product{},&models.ProductCategory{}, &models.PropertyDetail{}, &models.ImageDetail{})
 }
 

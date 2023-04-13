@@ -1,24 +1,23 @@
 package models
 
 import (
+	"rentoutlkApi/databse"
 	"strconv"
 	"time"
 )
 type Product struct{
-	Id uint`json:"id"`
-	Title string`json:"title"`
-	Description string`json:"description"`
-	CreatedBy int`json:"createdBy"`
-	ProductCategory int`json:"productCategory"`
-	Status int`json:"status"`
-	CreatedAt int64`json:"createdAt"`
-	UpdatedAt int64`json:"updatedAt"`
+  Id uint`json:"id"`
+  Title string`json:"title"`
+  Description string`json:"description"`
+  CreatedBy int`json:"createdBy"`
+  ProductCategory int`json:"productCategory"`
+  Status int`json:"status"`
+  CreatedAt int64`json:"createdAt"`
+  UpdatedAt int64`json:"updatedAt"`
 }
 
 
 func GetToBeUpdatedProduct(product Product, data map[string]string) Product{
-	
-	
   if(data["title"] != "") {
     product.Title = data["title"]
   }
@@ -35,4 +34,8 @@ func GetToBeUpdatedProduct(product Product, data map[string]string) Product{
   product.UpdatedAt = time.Now().Unix()
 
   return product
+}
+
+func (p *Product) CreateProduct() {
+  databse.DB.Create(&p)
 }

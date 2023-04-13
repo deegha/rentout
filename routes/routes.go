@@ -2,7 +2,6 @@ package routes
 
 import (
 	"rentoutlkApi/controllers"
-
 	"github.com/gofiber/fiber/v2"
 )
 

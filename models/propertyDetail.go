@@ -22,7 +22,7 @@ type PropertyDetail struct {
 }
 
 
-func GetProductDetails(productId int, data map[string]string) PropertyDetail{ 
+func (productDetail  *PropertyDetail) GetProductDetails(productId int, data map[string]string){ 
 
   var propertyType, _ = strconv.Atoi(data["propertyType"]) 
   var numberOfBedrooms, _ = strconv.Atoi(data["numberOfBedrooms"]) 
@@ -39,22 +39,19 @@ func GetProductDetails(productId int, data map[string]string) PropertyDetail{
   var seperateElectricity, _ = strconv.ParseBool(data["seperateElectricity"])
 
   //Creating the product Details
-  popertyDetail := PropertyDetail{
-    ProductId: productId,
-    PropertyType: propertyType,
-    NumOfBedrooms: numberOfBedrooms,
-    NumOfBathrooms: numberOfBathrooms,
-    FloorArea: floorArea,
-    FurnishedStatus: furnishedStatus,
-    AdvancePayment: advancePayment,
-    SecurityDeposit: securityDeposite,
-    RentAmount: rentAmount,
-    PropertyCode: propertyCode,
-    Pool: pool,
-    Gym: gym,
-    Generators: generators,
-    SeperateElectricity: seperateElectricity,
-  }
+    productDetail.ProductId = productId
+    productDetail.PropertyType = propertyType
+    productDetail.NumOfBedrooms = numberOfBedrooms
+    productDetail.NumOfBathrooms = numberOfBathrooms
+    productDetail.FloorArea = floorArea
+    productDetail.FurnishedStatus = furnishedStatus
+    productDetail.AdvancePayment = advancePayment
+    productDetail.SecurityDeposit = securityDeposite
+    productDetail.RentAmount = rentAmount
+    productDetail.PropertyCode = propertyCode
+    productDetail.Pool = pool
+    productDetail.Gym = gym
+    productDetail.Generators = generators
+    productDetail.SeperateElectricity = seperateElectricity
 
-  return popertyDetail
 }
