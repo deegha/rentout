@@ -1,17 +1,20 @@
 package routes
 
 import (
-	"rentoutlkApi/controllers"
+	"rentoutlkApi/controllers/product"
+	"rentoutlkApi/controllers/user"
+
 	"github.com/gofiber/fiber/v2"
 )
 
 func Setup(app *fiber.App) {
-	app.Post("/register", controllers.Register)
-	app.Post("/login", controllers.Login)
-	app.Post("/logout", controllers.Logout)
-	app.Get("/user", controllers.User)
-	app.Post("/products", controllers.AddProduct)
-	app.Put("/products/:id", controllers.UpdateProduct)
-	app.Get("/products/:id", controllers.ListAProducts)
-	app.Get("/products", controllers.ListProducts)
+	app.Post("/register", user.Register)
+	app.Post("/login", user.Login)
+	app.Post("/logout", user.Logout)
+	app.Get("/user", user.User)
+	app.Post("/products", product.AddProduct)
+	app.Put("/products/:id", product.UpdateProduct)
+	app.Get("/products/:id", product.ListAProducts)
+	app.Get("/products", product.ListProducts)
+	app.Get("/products/images/:id", product.ListImages)
 }

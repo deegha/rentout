@@ -1,10 +1,7 @@
 package models
 
 type ImageDetail struct {
-  Id uint`json: Id`
-  ProductId int`json: productId`
-  Url string`json: url`
+	Id        uint   `json:"id"`
+	ProductId int    `json:"productId"`
+	Url       string `json:"url"`
 }
-
-
-

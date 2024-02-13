@@ -5,48 +5,50 @@ import (
 	"fmt"
 	"rentoutlkApi/databse"
 	"strconv"
+	"time"
 )
 
 type Filter struct {
-		PropertyType    string
-		NumOfBedrooms   string
-		NumOfBathrooms  string
-		FurnishedStatus string
-		MaxRent         string
-		MinRent         string
-		Page            string
-	}
+	PropertyType    string
+	NumOfBedrooms   string
+	NumOfBathrooms  string
+	FurnishedStatus string
+	MaxRent         string
+	MinRent         string
+	Page            string
+}
+
+type ListItem struct {
+	ID              string `json:"id"`
+	Title           string `json:"title"`
+	Description     string `json:"description"`
+	PropertyType    int    `json:"propertyType"`
+	NumOfBedrooms   int    `json:"numOfBedrooms"`
+	NumOfBathrooms  int    `json:"numOfBathrooms"`
+	FurnishedStatus bool   `json:"furnishedStatus"`
+	SecurityDeposit int    `json:"securityDeposit"`
+	RentAmount      int    `json:"rentAmount"`
+	Pool            bool   `json:"pool"`
+	Gym             bool   `json:"gym"`
+}
 
 type Res struct {
-		ID              string `json:"id"`
-		Title           string `json:"title"`
-		Description     string `json:"description"`
-		PropertyType    int    `json:"propertyType"`
-		NumOfBedrooms   int    `json:"numOfBedrooms"`
-		NumOfBathrooms  int    `json:"numOfBathrooms"`
-		FurnishedStatus bool   `json:"furnishedStatus"`
-		SecurityDeposit int    `json:"securityDeposit"`
-		RentAmount      int    `json:"rentAmount"`
-		Pool            bool   `json:"pool"`
-		Gym             bool   `json:"gym"`		
-	  Page            int    `json:"page"`
-		NumberOfPage    int    `json:"numberOfPage"`
-	}
+	List            []ListItem
+	TotalPages      int
+	CurrentPage     int
+	NumberOfRecords int
+}
 
-func FetchProperties(filter Filter) ([]Res, error) {
-
+func FetchProperties(filter Filter) (*Res, error) {
 	var page, _ = strconv.Atoi(filter.Page)
 
-	if(page == 0) {
-		page = 1 
+	if page == 0 {
+		page = 1
 	}
-  var resultsPerPage int = 10
-	var pageFirstResult = (page - 1)*resultsPerPage
-  var productCount int64
-	databse.DB.Table("products").Count(&productCount)
 
-//  var numberOfPages = productCount/int64(resultsPerPage)
-  
+	var resultsPerPage = 10
+	var pageFirstResult = (page - 1) * resultsPerPage
+
 	query := `
 		SELECT products.*, property_details.*
 		FROM products
@@ -72,18 +74,29 @@ func FetchProperties(filter Filter) ([]Res, error) {
 		query += " AND property_details.rent_amount >= " + filter.MinRent
 	}
 
-  query += " limit "+fmt.Sprint(resultsPerPage)+" offset "+fmt.Sprint(pageFirstResult)
-	
+	query += fmt.Sprintf(" LIMIT %d OFFSET %d", resultsPerPage, pageFirstResult)
+
 	fmt.Println(query)
 
-	// Execute the query
-	var res []Res
-	result := databse.DB.Raw(query).Scan(&res)  
+	var list []ListItem
+	now := time.Now()
+	result := databse.DB.Raw(query).Scan(&list)
+	fmt.Println(time.Since(now), "time taken to fetch properties from the database")
 
-  if(result.Error != nil)	 {
+	var productCount int = len(list)
+
+	var numberOfPages = int((int64(productCount) + int64(resultsPerPage) - 1) / int64(resultsPerPage))
+
+	if result.Error != nil {
 		fmt.Print(result.Error)
-	  return nil, errors.New("Error in fetching property details.")
+		return nil, errors.New("error in fetching property details")
 	}
 
-	return res, nil	
+	var res Res
+	res.List = list
+	res.TotalPages = numberOfPages
+	res.CurrentPage = page
+	res.NumberOfRecords = productCount
+
+	return &res, nil
 }
