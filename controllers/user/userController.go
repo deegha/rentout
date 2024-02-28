@@ -1,6 +1,7 @@
 package user
 
 import (
+	"fmt"
 	"rentoutlkApi/databse"
 	"rentoutlkApi/models"
 	"rentoutlkApi/utils"
@@ -19,6 +20,8 @@ func User(c *fiber.Ctx) error {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
 			"message": "unauthenticated",
+			"data":    nil,
+			"success": false,
 		})
 	}
 
@@ -28,5 +31,57 @@ func User(c *fiber.Ctx) error {
 
 	databse.DB.Where("id = ?", claims.Issuer).First(&user)
 
-	return c.JSON(user)
+	fmt.Println(user, "user")
+
+	return c.JSON(fiber.Map{
+		"message": "Successfully fetched user",
+		"data":    user,
+		"success": true,
+	})
+}
+
+func CreateUser(c *fiber.Ctx) error {
+	var userInput models.UserInput
+
+	if err := c.BodyParser(&userInput); err != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"message": "Error in parsing request body",
+			"data":    nil,
+			"success": false,
+		})
+	}
+
+	IsValidUser, e := userInput.IsValidUser()
+
+	if !IsValidUser {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"message": e,
+			"data":    nil,
+			"success": false,
+		})
+	}
+
+	var user models.User
+	user.SetPassword(string(userInput.Password))
+	user.CreateConsumer(userInput)
+
+	result := databse.DB.Create(&user)
+
+	if result.Error != nil {
+		c.Status(fiber.StatusBadRequest)
+		return c.JSON(fiber.Map{
+			"message": "Error in creating user",
+			"data":    nil,
+			"success": false,
+		})
+	}
+
+	c.Status(fiber.StatusUnauthorized)
+	return c.JSON(fiber.Map{
+		"message": "Successfully created user",
+		"data":    user,
+		"success": true,
+	})
 }

@@ -9,6 +9,7 @@ import (
 
 func Setup(app *fiber.App) {
 	app.Post("/register", user.Register)
+	app.Post("/user", user.CreateUser)
 	app.Post("/login", user.Login)
 	app.Post("/logout", user.Logout)
 	app.Get("/user", user.User)

@@ -39,13 +39,24 @@ func AddProduct(c *fiber.Ctx) error {
 			"success": false,
 		})
 	}
+
+	isValid, e := productInput.IsValidProduct()
+
+	if !isValid {
+		return c.JSON(fiber.Map{
+			"message": e,
+			"data":    nil,
+			"success": false,
+		})
+	}
+
 	fmt.Println(productInput, "productInput")
 	var product models.Product
 
-	product.SetProduct(productInput)
-
 	createdBy, _ := strconv.Atoi(claims.Issuer)
 	product.CreatedBy = createdBy
+
+	product.SetProduct(productInput)
 
 	propertyCreateResult := databse.DB.Create(&product)
 

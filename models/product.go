@@ -21,9 +21,9 @@ type ProductImage struct {
 }
 
 type ProductInput struct {
-	Id                  uint           `json:"id"`
-	Title               string         `json:"title"`
-	Description         string         `json:"description"`
+	Id                  uint           `json:"id" validator:"required"`
+	Title               string         `json:"title" validator:"required" binding:"required" `
+	Description         string         `json:"description" validator:"required"`
 	CreatedBy           int            `json:"createdBy"`
 	ProductCategory     int            `json:"productCategory"`
 	Status              int            `json:"status"`
@@ -43,6 +43,8 @@ type ProductInput struct {
 	CreatedAt           int64          `json:"createdAt"`
 	UpdatedAt           int64          `json:"updatedAt"`
 	Images              []ProductImage `json:"images"`
+	ContactNumber       string         `json:"contactNumber"`
+	ContactPerson       string         `json:"contactPerson"`
 }
 
 func GetToBeUpdatedProduct(product Product, data map[string]string) Product {
@@ -69,4 +71,36 @@ func (product *Product) SetProduct(input ProductInput) {
 	product.Description = input.Description
 	product.ProductCategory = input.ProductCategory
 	product.Status = input.Status
+
+	if input.CreatedBy != 0 {
+		product.CreatedBy = input.CreatedBy
+	}
+}
+
+func (productInput *ProductInput) IsValidProduct() (bool, string) {
+	if productInput.Title == "" {
+		return false, "title is required"
+	}
+
+	if productInput.Description == "" {
+		return false, "description is required"
+	}
+
+	if productInput.ProductCategory == 0 {
+		return false, "product Category is required"
+	}
+
+	if productInput.Status == 0 {
+		return false, "status is required"
+	}
+
+	if productInput.ContactNumber == "" {
+		return false, "contact number is required"
+	}
+
+	if productInput.ContactPerson == "" {
+		return false, "contact person is required"
+	}
+
+	return true, ""
 }

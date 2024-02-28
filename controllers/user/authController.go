@@ -28,6 +28,7 @@ func Register(c *fiber.Ctx) error {
 		Name:     data["name"],
 		Email:    data["email"],
 		Password: password,
+		UserType: 2,
 	}
 
 	databse.DB.Create(&user)
@@ -92,6 +93,7 @@ func Login(c *fiber.Ctx) error {
 		Value:    token,
 		Expires:  time.Now().Add(time.Hour * 24),
 		HTTPOnly: true,
+		SameSite: "None",
 	}
 
 	c.Cookie(&cookie)
