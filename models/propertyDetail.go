@@ -1,21 +1,24 @@
 package models
 
 type PropertyDetail struct {
-	Id                  uint `json:"productDetailsId"`
-	ProductId           int  `json:"productId"`
-	PropertyType        int  `json:"propertyType"`
-	NumOfBedrooms       int  `json:"numOfBedrooms"`
-	NumOfBathrooms      int  `json:"numOfBathrooms"`
-	FloorArea           int  `json:"floorArea"`
-	FurnishedStatus     bool `json:"furnishedStatus"`
-	AdvancePayment      int  `json:"advancePayment"`
-	SecurityDeposit     int  `json:"securityDeposit"`
-	RentAmount          int  `json:"rentAmount"`
-	Pool                bool `json:"pool"`
-	Gym                 bool `json:"gym"`
-	PropertyCode        int  `json:"propertyCode"`
-	Generators          bool `json:"generators"`
-	SeparateElectricity bool `json:"separateElectricity"`
+	Id                  uint   `json:"productDetailsId"`
+	ProductId           int    `json:"productId"`
+	PropertyType        int    `json:"propertyType"`
+	NumOfBedrooms       int    `json:"numOfBedrooms"`
+	NumOfBathrooms      int    `json:"numOfBathrooms"`
+	FloorArea           int    `json:"floorArea"`
+	FurnishedStatus     bool   `json:"furnishedStatus"`
+	AdvancePayment      int    `json:"advancePayment"`
+	SecurityDeposit     int    `json:"securityDeposit"`
+	RentAmount          int    `json:"rentAmount"`
+	Pool                bool   `json:"pool"`
+	Gym                 bool   `json:"gym"`
+	PropertyCode        int    `json:"propertyCode"`
+	Generators          bool   `json:"generators"`
+	SeparateElectricity bool   `json:"separateElectricity"`
+	ContactNumber       string `json:"contactNumber"`
+	ContactPerson       string `json:"contactPerson"`
+	LocationId          int    `json:"locationId"`
 }
 
 func (productDetail *PropertyDetail) SetProductDetails(productId int, data ProductInput) {
@@ -34,4 +37,7 @@ func (productDetail *PropertyDetail) SetProductDetails(productId int, data Produ
 	productDetail.Gym = data.Gym
 	productDetail.Generators = data.Generators
 	productDetail.SeparateElectricity = data.SeparateElectricity
+	productDetail.LocationId = data.LocationId
+	productDetail.ContactNumber = data.ContactNumber
+	productDetail.ContactPerson = data.ContactPerson
 }

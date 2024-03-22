@@ -17,5 +17,5 @@ func Setup(app *fiber.App) {
 	app.Put("/products/:id", product.UpdateProduct)
 	app.Get("/products/:id", product.ListAProducts)
 	app.Get("/products", product.ListProducts)
-	app.Get("/products/images/:id", product.ListImages)
+	app.Get("/products/:id/images", product.ListImages)
 }

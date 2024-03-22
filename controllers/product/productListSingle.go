@@ -30,6 +30,9 @@ func ListAProducts(c *fiber.Ctx) error {
 		PropertyCode        int    `json:"propertyCode"`
 		Generators          bool   `json:"generators"`
 		SeperateElectricity bool   `json:"seperateElectricity"`
+		ContactNumber       string `json:"contactNumber"`
+		ContactPerson       string `json:"contactPerson"`
+		LocationId          int    `json:"locationId"`
 	}
 
 	productId := c.Params("id")

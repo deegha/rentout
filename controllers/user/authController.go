@@ -24,6 +24,7 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	password, _ := bcrypt.GenerateFromPassword([]byte(data["password"]), 14)
+
 	user := models.User{
 		Name:     data["name"],
 		Email:    data["email"],
@@ -94,6 +95,7 @@ func Login(c *fiber.Ctx) error {
 		Expires:  time.Now().Add(time.Hour * 24),
 		HTTPOnly: true,
 		SameSite: "None",
+		Path:     "/",
 	}
 
 	c.Cookie(&cookie)

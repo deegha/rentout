@@ -16,6 +16,7 @@ type Filter struct {
 	MaxRent         string
 	MinRent         string
 	Page            string
+	Location        string
 }
 
 type ListItem struct {
@@ -90,6 +91,10 @@ func FetchProperties(filter Filter) (*Res, error) {
 	if filter.MinRent != "" {
 		query += " AND property_details.rent_amount >= ?"
 		params = append(params, filter.MinRent)
+	}
+	if filter.Location != "" {
+		query += " AND property_details.location = ?"
+		params = append(params, filter.Location)
 	}
 
 	query += fmt.Sprintf(" LIMIT %d OFFSET %d", resultsPerPage, pageFirstResult)

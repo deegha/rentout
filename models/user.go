@@ -26,14 +26,12 @@ func (user *User) SetPassword(password string) {
 func (user *User) CreateAdmin(userInput UserInput) {
 	user.Name = userInput.Name
 	user.Email = userInput.Email
-	user.Password = []byte(userInput.Password)
 	user.UserType = 1
 }
 
 func (user *User) CreateConsumer(userInput UserInput) {
 	user.Name = userInput.Name
 	user.Email = userInput.Email
-	user.Password = []byte(userInput.Password)
 	user.UserType = 2
 }
 

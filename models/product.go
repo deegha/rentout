@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"strconv"
 	"time"
 )
@@ -45,6 +46,7 @@ type ProductInput struct {
 	Images              []ProductImage `json:"images"`
 	ContactNumber       string         `json:"contactNumber"`
 	ContactPerson       string         `json:"contactPerson"`
+	LocationId          int            `json:"locationId"`
 }
 
 func GetToBeUpdatedProduct(product Product, data map[string]string) Product {
@@ -78,12 +80,9 @@ func (product *Product) SetProduct(input ProductInput) {
 }
 
 func (productInput *ProductInput) IsValidProduct() (bool, string) {
+	fmt.Println(productInput, "productInput")
 	if productInput.Title == "" {
 		return false, "title is required"
-	}
-
-	if productInput.Description == "" {
-		return false, "description is required"
 	}
 
 	if productInput.ProductCategory == 0 {
@@ -94,13 +93,13 @@ func (productInput *ProductInput) IsValidProduct() (bool, string) {
 		return false, "status is required"
 	}
 
-	if productInput.ContactNumber == "" {
-		return false, "contact number is required"
-	}
+	// if productInput.ContactNumber == "" {
+	// 	return false, "contact number is required"
+	// }
 
-	if productInput.ContactPerson == "" {
-		return false, "contact person is required"
-	}
+	// if productInput.ContactPerson == "" {
+	// 	return false, "contact person is required"
+	// }
 
 	return true, ""
 }

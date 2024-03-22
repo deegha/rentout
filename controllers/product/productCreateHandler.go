@@ -21,7 +21,7 @@ func AddProduct(c *fiber.Ctx) error {
 
 	if err != nil {
 		return c.JSON(fiber.Map{
-			"message": "Authentication reuired",
+			"message": "Authentication required",
 			"data":    nil,
 			"success": false,
 		})
@@ -90,22 +90,7 @@ func AddProduct(c *fiber.Ctx) error {
 	}()
 
 	// adding productImages
-	go func() {
-		defer wg.Done()
-
-		images := productInput.Images
-
-		var imageArray []models.ImageDetail
-		for _, img := range images {
-			imageArray = append(imageArray, models.ImageDetail{Url: img.Url, ProductId: int(product.Id)})
-		}
-		propetyImageResult := databse.DB.Create(&imageArray)
-
-		if propetyImageResult.Error != nil {
-			fmt.Print(propetyImageResult.Error, "Error in creating property images")
-		}
-
-	}()
+	go addImages(productInput.Images, int(product.Id), &wg)
 
 	wg.Wait()
 
@@ -114,4 +99,17 @@ func AddProduct(c *fiber.Ctx) error {
 		"data":    product,
 		"success": true,
 	})
+}
+
+func addImages(images []models.ProductImage, productId int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	var imageArray []models.ImageDetail
+	for _, img := range images {
+		imageArray = append(imageArray, models.ImageDetail{Url: img.Url, ProductId: productId})
+	}
+	propetyImageResult := databse.DB.Create(&imageArray)
+
+	if propetyImageResult.Error != nil {
+		fmt.Print(propetyImageResult.Error, "Error in creating property images")
+	}
 }
