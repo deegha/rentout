@@ -33,6 +33,14 @@ func User(c *fiber.Ctx) error {
 
 	fmt.Println(user, "user")
 
+	if user.Id == 0 {
+		return c.JSON(fiber.Map{
+			"message": "No user found with this user id",
+			"data":    nil,
+			"success": false,
+		})
+	}
+
 	return c.JSON(fiber.Map{
 		"message": "Successfully fetched user",
 		"data":    user,

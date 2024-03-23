@@ -18,6 +18,8 @@ func ListProducts(c *fiber.Ctx) error {
 		MaxRent:         c.Query("maxRent"),
 		MinRent:         c.Query("minRent"),
 		Page:            c.Query("page"),
+		Location:        c.Query("region"),
+		Gym:             c.Query("gym"),
 	}
 
 	// Call FetchProperties function
