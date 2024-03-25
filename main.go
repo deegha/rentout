@@ -18,5 +18,5 @@ func main() {
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
 	}))
 	routes.Setup(app)
-	app.Listen(":8010")
+	app.Listen(":433")
 }
