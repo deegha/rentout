@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"rentoutlkApi/controllers"
 	"rentoutlkApi/controllers/product"
 	"rentoutlkApi/controllers/user"
 
@@ -18,4 +19,5 @@ func Setup(app *fiber.App) {
 	app.Get("/products/:id", product.ListAProducts)
 	app.Get("/products", product.ListProducts)
 	app.Get("/products/:id/images", product.ListImages)
+	app.Get("/", controllers.HealthCheck)
 }
