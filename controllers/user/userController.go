@@ -11,25 +11,37 @@ import (
 )
 
 func User(c *fiber.Ctx) error {
-	cookie := c.Cookies("jwt")
+	// cookie := c.Cookies("jwt")
 
-	token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
-		return []byte(utils.SecretKey), nil
-	})
+	// token, err := jwt.ParseWithClaims(cookie, &jwt.StandardClaims{}, func(token *jwt.Token) (interface{}, error) {
+	// 	return []byte(utils.SecretKey), nil
+	// })
+	// if err != nil {
+	// 	c.Status(fiber.StatusUnauthorized)
+	// 	return c.JSON(fiber.Map{
+	// 		"message": "unauthenticated",
+	// 		"data":    nil,
+	// 		"success": false,
+	// 	})
+	// }
+
+	token, err := utils.CheckAuth(c)
+
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
 		return c.JSON(fiber.Map{
-			"message": "unauthenticated",
+			"message": "Authentication required",
 			"data":    nil,
 			"success": false,
 		})
 	}
 
-	claims := token.Claims.(*jwt.StandardClaims)
-
+	// claims := token.Claims.(*jwt.StandardClaims)
+	claims := token.Claims.(jwt.MapClaims)
 	var user models.User
+	issuer := claims["iss"].(string)
 
-	databse.DB.Where("id = ?", claims.Issuer).First(&user)
+	databse.DB.Where("id = ?", issuer).First(&user)
 
 	fmt.Println(user, "user")
 

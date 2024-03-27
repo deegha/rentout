@@ -83,26 +83,28 @@ func Login(c *fiber.Ctx) error {
 	if err != nil {
 		c.Status(fiber.StatusInternalServerError)
 		return c.JSON(fiber.Map{
-			"message": "couldnt sign user in",
+			"message": "couldn't sign user in",
 			"success": false,
 		})
 	}
 
-	cookie := fiber.Cookie{
+	// cookie := fiber.Cookie{
 
-		Name:     "jwt",
-		Value:    token,
-		Expires:  time.Now().Add(time.Hour * 24),
-		HTTPOnly: true,
-		SameSite: "None",
-		Path:     "/",
-	}
+	// 	Name:     "jwt",
+	// 	Value:    token,
+	// 	Expires:  time.Now().Add(time.Hour * 24),
+	// 	HTTPOnly: true,
+	// 	SameSite: "None",
+	// 	Path:     "/",
+	// }
 
-	c.Cookie(&cookie)
+	// c.Cookie(&cookie)
 
 	return c.JSON(fiber.Map{
-		"message": "Sucessfully logged in",
+		"message": "Successfully authenticated",
 		"success": true,
+		"data":    user,
+		"token":   token,
 	})
 }
 

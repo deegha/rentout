@@ -12,11 +12,12 @@ func main() {
 	databse.Connect()
 	app := fiber.New()
 	app.Use(cors.New(cors.Config{
-		AllowHeaders:     "Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin",
-		AllowOrigins:     "https://renout-ui.vercel.app",
+		AllowHeaders:     "Origin,Content-Type,Accept,Content-Length,Accept-Language,Accept-Encoding,Connection,Access-Control-Allow-Origin, authorization",
+		AllowOrigins:     "https://renout-ui.vercel.app, http://localhost:3000",
 		AllowCredentials: true,
 		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS",
 	}))
+
 	routes.Setup(app)
 	app.Listen(":8010")
 }

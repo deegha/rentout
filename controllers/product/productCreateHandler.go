@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt"
 )
 
 /*
@@ -16,8 +17,8 @@ Add AddProduct
 */
 func AddProduct(c *fiber.Ctx) error {
 
-	cookie := c.Cookies("jwt")
-	claims, err := utils.ValidateCookie(cookie)
+	// cookie := c.Cookies("jwt")
+	token, err := utils.CheckAuth(c)
 
 	if err != nil {
 		return c.JSON(fiber.Map{
@@ -26,6 +27,22 @@ func AddProduct(c *fiber.Ctx) error {
 			"success": false,
 		})
 	}
+
+	user := token
+
+	claims := user.Claims.(jwt.MapClaims)
+	fmt.Println(claims, "claims")
+
+	issuer := claims["iss"].(string)
+	fmt.Println(issuer, "iss")
+
+	// if user == nil {
+	// 	return c.JSON(fiber.Map{
+	// 		"message": "Authentication required",
+	// 		"data":    nil,
+	// 		"success": false,
+	// 	})
+	// }
 
 	var productInput models.ProductInput
 
@@ -53,7 +70,7 @@ func AddProduct(c *fiber.Ctx) error {
 	fmt.Println(productInput, "productInput")
 	var product models.Product
 
-	createdBy, _ := strconv.Atoi(claims.Issuer)
+	createdBy, _ := strconv.Atoi(issuer)
 	product.CreatedBy = createdBy
 
 	product.SetProduct(productInput)

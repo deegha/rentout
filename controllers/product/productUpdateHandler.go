@@ -17,15 +17,27 @@ update Product
 */
 func UpdateProduct(c *fiber.Ctx) error {
 	var data map[string]string
-	cookie := c.Cookies("jwt")
-	_, err := utils.ValidateCookie(cookie)
+	// cookie := c.Cookies("jwt")
+	// _, err := utils.ValidateCookie(cookie)
+
+	// if err != nil {
+	// 	c.Status(fiber.StatusUnauthorized)
+
+	// 	return c.JSON(fiber.Map{
+	// 		"message": "Authentication reuired",
+	// 		"data":    nil,
+	// 	})
+	// }
+
+	// cookie := c.Cookies("jwt")
+	_, err := utils.CheckAuth(c)
 
 	if err != nil {
 		c.Status(fiber.StatusUnauthorized)
-
 		return c.JSON(fiber.Map{
-			"message": "Authentication reuired",
+			"message": "Authentication required",
 			"data":    nil,
+			"success": false,
 		})
 	}
 
